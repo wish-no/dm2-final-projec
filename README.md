@@ -8,7 +8,7 @@
 
 ## 1. Objective
 
-Combine **two data sources of different types** and report **two business objectives** on a single dashboard, built as a production-style pipeline on Databricks.
+Combine **two data sources of different types** and report **two business objectives** on a single dashboard, **built as a production-style pipeline on Databricks**.
 
 | Source | Type | What it is |
 |--------|------|-----------|
