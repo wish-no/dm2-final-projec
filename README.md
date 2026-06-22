@@ -41,6 +41,16 @@ Source 1 (Stream)        Source 2 (Object)
 - **Silver** — drop cancellations/returns, compute `line_revenue`, curate country names, join continent → `region`.
 - **Gold** — aggregate into the two objective tables the dashboard reads.
 
+### ETL mapping (Extract → Transform → Load)
+
+The full Bronze → Silver → Gold pipeline is the ETL process:
+
+- **Extract** — `01_bronze` ingests both sources: the retail transactions as a stream (Auto Loader) and the country reference via a batch read.
+- **Transform** — `02_silver` cleans, curates, and joins the two sources; `03_gold` aggregates the result into the objective tables.
+- **Load** — every stage is written to managed Delta tables in Unity Catalog, and the Gold tables are served to the dashboard.
+
+*(Strictly, this is the modern **ELT** variant — raw data is loaded into Bronze first, then transformed in place — which is the standard Databricks / Medallion approach.)*
+
 ---
 
 ## 3. Notebooks
@@ -49,9 +59,9 @@ Source 1 (Stream)        Source 2 (Object)
 |----------|------|
 | `00_setup` | Creates the schema and volumes (run once) |
 | `prep_slice` | One-time data prep: samples ~4.5k rows across the full dataset, writes the load file + a held-back test file |
-| `01_bronze` | Ingests both sources into Bronze |
-| `02_silver` | Cleans, curates, joins → Silver |
-| `03_gold` | Builds the two objective tables |
+| `01_bronze` | Ingests both sources into Bronze (Extract) |
+| `02_silver` | Cleans, curates, joins → Silver (Transform) |
+| `03_gold` | Builds the two objective tables (Transform / serve) |
 
 The job **`retail_pipeline`** chains `01_bronze → 02_silver → 03_gold` with task dependencies and a **daily** schedule.
 
@@ -92,4 +102,4 @@ See `citations.md`. No data was fabricated; the test increment is real rows samp
 
 ## 7. Tech / patterns used
 
-Medallion architecture · Unity Catalog (catalog / schema / volumes) · Auto Loader (incremental, checkpointed ingestion) · idempotent Spark SQL transforms · orchestrated multi-task Job with a daily schedule · native AI/BI dashboard · Git version control · Serverless compute.
+ETL (Extract → Transform → Load) · Medallion architecture · Unity Catalog (catalog / schema / volumes) · Auto Loader (incremental, checkpointed ingestion) · idempotent Spark SQL transforms · orchestrated multi-task Job with a daily schedule · native AI/BI dashboard · Git version control · Serverless compute.
